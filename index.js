@@ -4,6 +4,8 @@ const cors = require("cors");
 // const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 // const cloudinary = require("cloudinary");
+const swaggerUI = require("swagger-ui-express");
+const swaggerDocument = require("./doc/swagger.json");
 
 
 const app = express();
@@ -31,6 +33,7 @@ const PORT = process.env.PORT;
 //   api_secret: API_SECRET,
 // });
 
+app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 app.get("/", (req, res) => {
   res.send(`Hello and Welcome!`);
