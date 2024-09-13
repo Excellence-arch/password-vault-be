@@ -12,8 +12,8 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(cors({ origin: "*" }));
-const { postVariable } = require("./controllers/variable");
-const { register, login } = require("./controllers/user");
+const accountsRouter = require("./routes/accounts.route");
+const variableRouter = require("./routes/variable.route");
 const prisma = require("./prisma/prisma");
 
 const PORT = process.env.PORT;
@@ -34,14 +34,12 @@ const PORT = process.env.PORT;
 // });
 
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+app.use("/accounts/", accountsRouter);
+app.use("/saveVariable", variableRouter);
 
 app.get("/", (req, res) => {
   res.send(`Hello and Welcome!`);
 });
-
-app.post("/register", register);
-app.post("/login", login);
-app.post("/saveVariable", postVariable);
 
 app.listen(PORT, () => {
   prisma.$connect().then((resp, err) => {
