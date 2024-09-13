@@ -10,6 +10,7 @@ const postVariable = async (req, res) => {
       file: false,
       value: variable.value,
       userId: req.userId,
+      category: variable.category,
       // others: [variable]
     };
     try {
@@ -28,7 +29,8 @@ const postVariable = async (req, res) => {
         file: false,
         value: variable[i].value,
         userId: req.userId,
-        others: [variable[i]],
+        category: variable.category,
+        // others: [variable[i]],
       };
       variableData.push(variables);
     }
@@ -42,7 +44,7 @@ const postVariable = async (req, res) => {
   }
 };
 
-const postFiledVariable = (req, res) => {
+const postFiledVariable = async (req, res) => {
   const userId = req.userId;
   const { rawFile, name } = req.body;
   const file = readline.createInterface({
@@ -50,11 +52,26 @@ const postFiledVariable = (req, res) => {
     output: process.stdout,
     terminal: false,
   });
-  file.on("line", (line) => {
-    console.log(line);
+  const allVariables = [];
+  file.on("line", (variable) => {
+    console.log(variable);
+    keyAndValue = variable.split("=");
+    variables = {
+      name: keyAndValue[0],
+      file: true,
+      value: keyAndValue[1],
+      userId: req.userId,
+      category: name,
+      // others: [variable[i]],
+    };
+    allVariables.push(variables);
   });
 
-  res.status(200).send({ status: true, message: `Coming soon...` });
+  try {
+    await prisma.variable.createMany({ data: allVariables });
+  } catch (err) {
+    return res.status(500).send({ status: false, message: err.message });
+  }
 };
 
 const getSavedDetails = async (req, res) => {
