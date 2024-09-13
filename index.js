@@ -6,14 +6,18 @@ const bodyParser = require("body-parser");
 // const cloudinary = require("cloudinary");
 const swaggerUI = require("swagger-ui-express");
 const swaggerDocument = require("./doc/swagger.json");
-
+const morgan = require("morgan");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(cors({ origin: "*" }));
+app.use(helmet());
+app.use(morgan("tiny"));
 const accountsRouter = require("./routes/accounts.route");
-const variableRouter = require("./routes/variable.route");
+const variableRouter = require("./routes/variables.route");
 const prisma = require("./prisma/prisma");
 
 const PORT = process.env.PORT;
@@ -33,6 +37,13 @@ const PORT = process.env.PORT;
 //   api_secret: API_SECRET,
 // });
 
+const globalRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: "Too many requests from this IP, please try again after 15 minutes",
+});
+app.use(globalRateLimiter);
+
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 app.use("/accounts/", accountsRouter);
 app.use("/saveVariable", variableRouter);
@@ -44,9 +55,9 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   prisma.$connect().then((resp, err) => {
     if (err) {
-        console.log(`Error connecting to DB`);
+      console.log(`Error connecting to DB`);
     } else {
-        console.log(`App listening on port: ${PORT}`);
+      console.log(`App listening on port: ${PORT}`);
     }
-  })
+  });
 });
