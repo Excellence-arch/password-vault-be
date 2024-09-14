@@ -19,6 +19,7 @@ app.use(morgan("tiny"));
 const accountsRouter = require("./routes/accounts.route");
 const variableRouter = require("./routes/variables.route");
 const prisma = require("./prisma/prisma");
+const { globalRateLimiter } = require("./utils/rateLimiter");
 
 const PORT = process.env.PORT;
 // const MONGO_URI = process.env.MONGO_URI;
@@ -37,11 +38,7 @@ const PORT = process.env.PORT;
 //   api_secret: API_SECRET,
 // });
 
-const globalRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: "Too many requests from this IP, please try again after 15 minutes",
-});
+
 app.use(globalRateLimiter);
 
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));

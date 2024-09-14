@@ -88,4 +88,4 @@ const getSavedDetails = async (req, res) => {
   }
 };
 
-module.exports = { postVariable, postFiledVariable };
+module.exports = { postVariable, postFiledVariable, getSavedDetails };
