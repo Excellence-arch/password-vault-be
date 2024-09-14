@@ -4,12 +4,13 @@ const readline = require("readline");
 
 const postVariable = async (req, res) => {
   const variable = req.body;
+  const userId = req.user.id;
   if (!checkArray(variable)) {
     const variableData = {
       name: variable.name,
       file: false,
       value: variable.value,
-      userId: req.userId,
+      userId,
       category: variable.category,
       // others: [variable]
     };
@@ -28,7 +29,7 @@ const postVariable = async (req, res) => {
         name: variable[i].name,
         file: false,
         value: variable[i].value,
-        userId: req.userId,
+        userId,
         category: variable.category,
         // others: [variable[i]],
       };
@@ -45,7 +46,7 @@ const postVariable = async (req, res) => {
 };
 
 const postFiledVariable = async (req, res) => {
-  const userId = req.userId;
+  const userId = req.user.id;
   const { rawFile, name } = req.body;
   const file = readline.createInterface({
     input: fs.createReadStream(rawFile),
@@ -60,7 +61,7 @@ const postFiledVariable = async (req, res) => {
       name: keyAndValue[0],
       file: true,
       value: keyAndValue[1],
-      userId: req.userId,
+      userId: userId,
       category: name,
       // others: [variable[i]],
     };
@@ -75,7 +76,7 @@ const postFiledVariable = async (req, res) => {
 };
 
 const getSavedDetails = async (req, res) => {
-  const userId = req.userId;
+  const userId = req.user.id;
   try {
     const savedData = await prisma.variable.findMany({ where: { userId } });
     return res
